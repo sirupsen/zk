@@ -1,0 +1,23 @@
+#!/bin/bash
+cd $ZK_PATH
+
+# Take a daily backup
+file="backup/$(date "+%Y-%m-%d")-index.db"
+if [[ ! -d "backup/" ]]; then
+  mkdir backup
+fi
+if [[ ! -f  $file ]]; then
+  cp index.db $file
+fi
+
+fzf --ansi --height 100% --preview 'zk-fts-search -f {} {q} | bat --language md --style=plain --color always' \
+  --bind "ctrl-o:execute-silent@tmux send-keys -t \{left\} Escape :read Space ! Space echo Space && \
+          tmux send-keys -t \{left\} -l '\"'[[{}]]'\"' && \
+          tmux send-keys -t \{left\} Enter@" \
+  --bind "enter:execute-silent[ \
+    tmux send-keys -t \{left\} Escape :e Space && \
+    tmux send-keys -t \{left\} -l {} && \
+    tmux send-keys -t \{left\} Enter \
+  ]" \
+  --bind "change:reload:zk-fts-search '{q}'" \
+  --phony --preview-window=top:65% --no-info --no-multi

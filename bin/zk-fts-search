@@ -1,0 +1,95 @@
+#!/usr/bin/env ruby
+require 'set'
+require 'yaml'
+
+# avoid rubygems
+# libx = File.expand_path("../sqlite3-ruby/lib", __FILE__)
+# $LOAD_PATH.unshift(libx) unless $LOAD_PATH.include?(libx)
+require "sqlite3"
+
+# require 'byebug'
+# Will be rebuilt at any time. Nice and incremental.
+db = SQLite3::Database.new "index.db"
+
+# Keep prefix indexes for "mos*" searches.
+#
+# TODO: It doesn't seem like SQLITE FTS5 supports synonyms well. That's ok, but
+# we're going to want that. We can download this database from Princeton, write
+# a parser for it (or use grind(1)). This should allow us to do potentially do
+# `OR` queries. Alternatively, and probably better, woluld be to see if Lucene
+# supports this.
+#
+# https://wordnet.princeton.edu/download/current-version
+db.execute <<-SQL
+  CREATE VIRTUAL TABLE IF NOT EXISTS zettelkasten
+    USING fts5(title, body, tags, mtime UNINDEXED, prefix = 3, tokenize = "porter unicode61");
+SQL
+
+# Weigh tags higher, and title a bit higher.
+db.execute <<-SQL
+  INSERT INTO zettelkasten (zettelkasten, rank) VALUES('rank', 'bm25(2.0, 1.0, 5.0, 0.0)');
+SQL
+
+existing = {}
+raw_existing = db.execute("SELECT title, mtime FROM zettelkasten")
+raw_existing.each { |(title, mtime)| existing[title] = mtime.to_i }
+
+directories = Dir["*.md"] + Dir["highlights/*.md"]
+directories.each do |path|
+  mtime = File.stat(path).mtime.to_i
+
+  # Any file that's been modified since its entry in the full-text search index
+  # will get updated (or if it doesn't exist, of course).
+  if !existing[path]
+    contents = File.read(path)
+    tags = contents.scan(/#[\w-]+/).join(" ")
+    db.execute(<<-SQL, [path, contents, tags, mtime])
+      INSERT INTO zettelkasten (title, body, tags, mtime) VALUES (?, ?, ?, ?);
+    SQL
+  elsif mtime > existing[path] # to_i because the stat may have more precision
+    contents = File.read(path)
+    tags = contents.scan(/#[\w-]+/).join(" ")
+    db.execute(<<-SQL, [contents, tags, mtime.to_s, path])
+      UPDATE zettelkasten SET body = ?, tags = ?, mtime = ? WHERE title = ?
+    SQL
+  end
+
+  existing[path] = 'VISITED'
+end
+
+
+# Delete any entries in the full text index that don't have files!
+existing.each do |(path, present)|
+  puts db.execute("DELETE FROM zettelkasten WHERE title = ?;", [path]) unless present == 'VISITED'
+end
+
+file_cat = ARGV.delete("-f")
+
+# For preview
+if file_cat
+  if !ARGV[1].empty?
+    results = db.execute(<<-SQL, ARGV[0], ARGV[1])
+      SELECT rank, highlight(zettelkasten, 1, '\x1b[0;41m', '\x1b[0m')
+        FROM zettelkasten WHERE title = ? AND zettelkasten MATCH ? ORDER BY rank;
+    SQL
+  # This is when it starts and there's no query input...
+  else
+    puts ARGV[0]
+    results = db.execute(<<-SQL, ARGV[0])
+      SELECT rank, body FROM zettelkasten WHERE title = ?;
+    SQL
+  end
+elsif ARGV[0]
+  results = db.execute(<<-SQL, ARGV.join(" ").gsub(/-_/, ' '))
+    SELECT rank, highlight(zettelkasten, 0, '\x1b[0;41m', '\x1b[0m'), tags
+      FROM zettelkasten WHERE zettelkasten MATCH ? ORDER BY rank;
+  SQL
+else
+  results = db.execute("SELECT title FROM zettelkasten;")
+end
+
+results.each do |(_score, content, _tags)|
+  # puts score
+  # puts "\"#{content}\"\t\x1b[33m\"#{tags}\"\x1b[0m"
+  puts content
+end

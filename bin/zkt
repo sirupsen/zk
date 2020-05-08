@@ -1,0 +1,22 @@
+#!/bin/bash
+zk-tags-raw() {
+  rg -o "#[\w\-_]{3,}" -t md -N --no-filename "$ZK_PATH" |
+    rg -v "^#(notes-|import-)" | \
+    awk ' { tot[$0]++ } END { for (i in tot) print tot[i], "\t", i } ' | \
+    gsort -r --numeric-sort
+}
+
+zk-tags-raw | fzf --height 100% --no-info --no-multi \
+  --bind "ctrl-o:execute-silent[tmux send-keys -t \{left\} Escape :read Space ! Space echo Space && \
+          tmux send-keys -t \{left\} -l '\"\\'{2}'\"' && \
+          tmux send-keys -t \{left\} Enter]" \
+  --bind "ctrl-y:execute-silent(echo {2} | pbcopy),enter:execute[ \
+    ggrep -F --color=always -i {2} *.md -l | \
+      fzf --ansi --height 100% --preview-window=top:65% \
+        --bind 'enter:execute-silent$ \
+          tmux send-keys -t \{left\} Escape :e Space && \
+          tmux send-keys -t \{left\} -l \{} && \
+          tmux send-keys -t \{left\} Enter \
+        $' \
+        --preview 'bat --color always --language md --style plain \{}' \
+  ]"
