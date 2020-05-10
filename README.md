@@ -29,10 +29,18 @@ Your `zk` Zettelkasten is designed to be edited with your favourite editor.
 Currently `zk` only supports Vim natively. `zk` augments your editor with
 various scripts to help extract further value.
 
-`zks`. Full-text search (top-right pane in screenshot above) over all your
-notes, using `sqlite`. Updates automatically.
+`zks`. `fzf`-enabled full-text search (top-right pane in screenshot above) over
+all your notes, using `sqlite`. The index updates automatically based on file
+modification. See the `FZF_DEFAULT_OPTS` below for various key-bindings you can
+use to open splits, copy to clipboard, etc.  directly from here.
 
-`zkt`. List tags. Pressing enter on a tag will show you notes with that tag.
+`zkt`. `fzf`-enabled tag browser. Pressing enter on a tag will show you notes
+with that tag.  notes, using `sqlite`. See the `FZF_DEFAULT_OPTS` below for
+various key-bindings you can use to open splits, copy to clipboard, etc.
+directly from here.
+
+`zkt-raw`. Raw list of tags sorted by totals. Useful for other analysis. Used by
+`zkt`.
 
 `zkn`. Create a new note, with an appropriate prefix.
 
@@ -41,16 +49,16 @@ notes, using `sqlite`. Updates automatically.
 Clone `zk` and add `bin/` to your `$PATH`:
 
 ```
-git clone https://github.com/sirupsen/zk.git ~/zk
-echo 'export PATH=$PATH:$HOME/zk/bin' >> ~/.bashrc
-echo 'export ZK_PATH="$HOME/Zettelkasten"' >> ~/.bashrc
+$ git clone https://github.com/sirupsen/zk.git ~/zk
+$ echo 'export PATH=$PATH:$HOME/zk/bin' >> ~/.bashrc
+$ echo 'export ZK_PATH="$HOME/Zettelkasten"' >> ~/.bashrc
 ```
 
 Install the dependencies with your package manager. MacOS:
 
-```
-brew install ripgrep fzf sqlite3 bat
-gem install sqlite3
+```bash
+# brew install ripgrep fzf sqlite3 bat
+# gem install sqlite3
 ```
 
 For Vim, you can use
@@ -58,3 +66,28 @@ For Vim, you can use
 in the config to add a `:Note` to add new notes with the prefix, as well as
 auto-completion for tags and links. Make sure to use `bouk/vim-markdown` to get
 proper highlighting for links.
+
+If you're using `fzf` with `vim`, it's recommended to add this to your `bash`
+configuration. It adds super useful key-bindings to open files from `zkt` and
+`zks`:
+
+```bash
+export FZF_DEFAULT_OPTS="--height=40% --multi --tiebreak=begin \
+  --bind 'ctrl-y:execute-silent(echo {} | pbcopy)' \
+  --bind 'alt-down:preview-down,alt-up:preview-up' \
+  --bind \"ctrl-v:execute-silent[ \
+    tmux send-keys -t \{left\} Escape :vs Space && \
+    tmux send-keys -t \{left\} -l {} && \
+    tmux send-keys -t \{left\} Enter \
+  ]\"
+  --bind \"ctrl-x:execute-silent[ \
+    tmux send-keys -t \{left\} Escape :sp Space && \
+    tmux send-keys -t \{left\} -l {} && \
+    tmux send-keys -t \{left\} Enter \
+  ]\"
+  --bind \"ctrl-o:execute-silent[ \
+    tmux send-keys -t \{left\} Escape :read Space ! Space echo Space && \
+    tmux send-keys -t \{left\} -l \\\"{}\\\" && \
+    tmux send-keys -t \{left\} Enter \
+  ]\""
+```
