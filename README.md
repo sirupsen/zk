@@ -7,9 +7,11 @@ The goal of the `zk` repository is to collect scripts and configurations for
 other plain-text Zettelkasten users.
 
 **Note:** This is an on-going extraction from my local environment, but has the
-utilities I use by far the most often. Please open issues if you have questions,
-concerns, comments. I'd also love contributions of scripts to `bin/`, such as
-showing related notes, polish to search, Vim configs, etc.
+utilities I use by far the most often. I can almost guarantee you you're going
+to run into a stacktrace somewhere because of some utility that isn't installed,
+etc. Please open issues if it's not working, or you have questions, concerns,
+comments. I'd also love contributions of scripts to `bin/`, such as showing
+related notes, polish to search, Vim configs, etc.
 
 ![](https://pbs.twimg.com/media/EQGYhAJUYAEPC4j?format=jpg&name=4096x4096)
 
