@@ -1,3 +1,4 @@
+import sys
 import argparse
 import os
 import sqlite3
@@ -18,7 +19,7 @@ top 20 matches.
 I currently utilize sirupsen's search tool to use this (https://github.com/sirupsen/zk/blob/master/bin/zks). 
 I have a second search function for when I want to try TF-IDF that puts 'python --filename "zk filename.md" |' in
 front of the fzf. This will give you a view to scroll through related files with the same opening and linking commands
-as zk-search. 
+as zk-search. Planning to add a --bind to the zks search tool.
 """
 
 
@@ -64,8 +65,14 @@ def relevant_titles(df, title, title_col, text_col):
     return df.iloc[sim_index][title_col].values
 
 
+class MyParser(argparse.ArgumentParser):
+    def error(self, message):
+        sys.stderr.write('error: %s\n' % message)
+        self.print_help()
+        sys.exit(2)
+
+
 class CustomAction(argparse.Action):
-    # Needed this to handle white space in filenames passed, even when in quotes idk why
     def __call__(self, parser, namespace, values, option_string=None):
         setattr(namespace, self.dest, " ".join(values))
 
@@ -80,16 +87,23 @@ class TfidfSearch:
         self.num_files_to_show = 20
 
     def application_logic(self, filename):
-        df = pd.read_sql("select * from zettelkasten", con=self.conn)
+        df = pd.read_sql("SELECT * FROM zettelkasten", con=self.conn)
+        print(df.columns)
+        # df = pd.read_sql("SELECT * FROM zettelkasten where *?* NOT LIKE 'highlights/%'", con=self.conn)
         for file in relevant_titles(df, filename, title_col="title", text_col="body")[:self.num_files_to_show]:
             print(file)
 
     def run(self):
-        parser = argparse.ArgumentParser(description='Process some integers.')
-        parser.add_argument('--filename', dest='filename', action=CustomAction, type=str, nargs='+',
+        parser = argparse.ArgumentParser(description='Perform document similarity search based on TF-IDF')
+        parser.add_argument('filename', metavar='filename', type=str, nargs='+', action=CustomAction,
                             help='filename to search for similarity')
-        args = parser.parse_args()
 
+        if len(sys.argv) == 1:
+            parser.print_help(sys.stderr)
+            sys.exit(1)
+
+        args = parser.parse_args()
+        print(args)
         self.application_logic(args.filename)
 
 
