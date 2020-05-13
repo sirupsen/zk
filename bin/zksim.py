@@ -2,10 +2,15 @@ import sys
 import argparse
 import os
 import sqlite3
-import pandas as pd
+from importlib import util
+
+for module in ("pandas", "sklearn"):
+    if not util.find_spec(module) is not None:
+        raise ModuleNotFoundError('Missing {0}! Please run pip3 install scikit-learn pandas'.format(module))
+
 from sklearn.metrics.pairwise import linear_kernel
 from sklearn.feature_extraction.text import TfidfVectorizer
-
+import pandas as pd
 
 """
 This script takes a zettelkasten note filename and sorts the available notes by their similarity
@@ -81,15 +86,18 @@ class TfidfSearch:
 
     def __init__(self):
 
-        self.zk_path = os.environ['ZK_PATH']
+        if 'ZK_PATH' in os.environ:
+            self.zk_path = os.environ['ZK_PATH']
+        else:
+            raise KeyError("ZK_PATH variable not defined! Run $ echo 'export PATH=$PATH:$HOME/zk/bin' >> ~/.bashrc")
+
         self.conn = sqlite3.connect(os.path.join(self.zk_path, "index.db"))
         self.cursor = self.conn.cursor()
         self.num_files_to_show = 20
 
     def application_logic(self, filename):
         df = pd.read_sql("SELECT * FROM zettelkasten", con=self.conn)
-        print(df.columns)
-        # df = pd.read_sql("SELECT * FROM zettelkasten where *?* NOT LIKE 'highlights/%'", con=self.conn)
+        # df = pd.read_sql("SELECT * FROM zettelkasten WHERE *?* NOT LIKE 'highlights/%'", con=self.conn)
         for file in relevant_titles(df, filename, title_col="title", text_col="body")[:self.num_files_to_show]:
             print(file)
 
@@ -103,7 +111,6 @@ class TfidfSearch:
             sys.exit(1)
 
         args = parser.parse_args()
-        print(args)
         self.application_logic(args.filename)
 
 
