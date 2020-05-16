@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import sys
 import argparse
 import os
@@ -11,6 +12,7 @@ for module in ("pandas", "sklearn"):
 from sklearn.metrics.pairwise import linear_kernel
 from sklearn.feature_extraction.text import TfidfVectorizer
 import pandas as pd
+
 
 """
 This script takes a zettelkasten note filename and sorts the available notes by their similarity
@@ -89,15 +91,14 @@ class TfidfSearch:
         if 'ZK_PATH' in os.environ:
             self.zk_path = os.environ['ZK_PATH']
         else:
-            raise KeyError("ZK_PATH variable not defined! Run $ echo 'export PATH=$PATH:$HOME/zk/bin' >> ~/.bashrc")
+            raise KeyError("ZK_PATH variable not defined! Run $ echo 'export ZK_PATH=$HOME/Zettelkasten' >> ~/.bashrc")
 
         self.conn = sqlite3.connect(os.path.join(self.zk_path, "index.db"))
         self.cursor = self.conn.cursor()
         self.num_files_to_show = 20
 
     def application_logic(self, filename):
-        df = pd.read_sql("SELECT * FROM zettelkasten", con=self.conn)
-        # df = pd.read_sql("SELECT * FROM zettelkasten WHERE *?* NOT LIKE 'highlights/%'", con=self.conn)
+        df = pd.read_sql("SELECT * FROM zettelkasten WHERE title NOT LIKE 'highlights/%'", con=self.conn)
         for file in relevant_titles(df, filename, title_col="title", text_col="body")[:self.num_files_to_show]:
             print(file)
 
