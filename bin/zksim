@@ -3,15 +3,14 @@ import sys
 import argparse
 import os
 import sqlite3
-from importlib import util
 
-for module in ("pandas", "sklearn"):
-    if not util.find_spec(module) is not None:
-        raise ModuleNotFoundError('Missing {0}! Please run pip3 install scikit-learn pandas'.format(module))
-
-from sklearn.metrics.pairwise import linear_kernel
-from sklearn.feature_extraction.text import TfidfVectorizer
-import pandas as pd
+try:
+    from sklearn.metrics.pairwise import linear_kernel
+    from sklearn.feature_extraction.text import TfidfVectorizer
+    import pandas as pd
+except ImportError as e:
+    print(f"Missing {e.name}! Please run pip3 install scikit-learn pandas")
+    exit()
 
 
 """
