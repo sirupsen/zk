@@ -34,7 +34,11 @@ various scripts to help extract further value.
 `zks`. `fzf`-enabled full-text search (top-right pane in screenshot above) over
 all your notes, using `sqlite`. The index updates automatically based on file
 modification. See the `FZF_DEFAULT_OPTS` below for various key-bindings you can
-use to open splits, copy to clipboard, etc.  directly from here.
+use to open splits in Vim, copy to clipboard, etc.  directly from here. `Alt-S`
+will find similar notes with `zksim`.
+
+`zksim`. Finds similar notes to the note passed as an argument. See [#1][1] for
+more.
 
 `zkt`. `fzf`-enabled tag browser. Pressing enter on a tag will show you notes
 with that tag.  notes, using `sqlite`. See the `FZF_DEFAULT_OPTS` below for
@@ -95,3 +99,5 @@ export FZF_DEFAULT_OPTS="--height=40% --multi --tiebreak=begin \
     tmux send-keys -t \{left\} Enter \
   ]\""
 ```
+
+[1]: https://github.com/sirupsen/zk/pull/1

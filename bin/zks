@@ -20,4 +20,5 @@ fzf --ansi --height 100% --preview 'zk-fts-search -f {} {q} | bat --language md 
     tmux send-keys -t \{left\} Enter \
   ]" \
   --bind "change:reload:zk-fts-search '{q}'" \
-  --phony --preview-window=top:65% --no-info --no-multi
+  --phony --preview-window=top:65% --no-info --no-multi \
+  --bind "alt-s:execute:zksim {}"
