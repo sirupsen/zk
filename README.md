@@ -46,6 +46,8 @@ directly from here.
 
 `zkn`. Create a new note, with an appropriate prefix.
 
+`zk-assets-localize`. Given a file, downloads/copies the markdown images to `media/`.
+
 ## Installation
 
 Clone `zk` and add `bin/` to your `$PATH`:

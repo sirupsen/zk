@@ -1,0 +1,34 @@
+#!/usr/bin/env ruby
+
+require 'pathname'
+
+file = ARGV[0]
+media_path = ENV["ZK_PATH"] + "/media"
+file_path = ENV["ZK_PATH"] + "/" + file
+body = File.read(file_path)
+id = file[/\A\d+/]
+images = body.scan(/!\[.*\]\((.+)\)/)
+media_identifier = Dir[ENV['ZK_PATH'] + "/media/#{id}-*"].map { |name|
+  name.match(/#{id}-(\d+)/)[1].to_i
+}.max
+
+images.each do |(img)|
+  unless img.start_with?("media/") || img.start_with?(media_path)
+    media_identifier += 1
+    img_path = Pathname.new(img)
+    new_path = "media/#{id}-#{media_identifier}#{img_path.extname}"
+    full_new_path = "#{ENV["ZK_PATH"]}/#{new_path}"
+
+    if img.start_with?("http")
+      system("curl '#{img}' -o '#{full_new_path}'")
+    else
+      system("cp '#{img}' '#{full_new_path}'")
+    end
+
+    body.sub!(img, new_path)
+  end
+end
+
+File.open(file_path, "w+") do |f|
+  f.write(body)
+end
