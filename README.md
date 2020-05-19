@@ -62,10 +62,19 @@ $ echo 'export PATH=$PATH:$HOME/zk/bin' >> ~/.bashrc
 $ echo 'export ZK_PATH="$HOME/Zettelkasten"' >> ~/.bashrc
 ```
 
-Install the dependencies with your package manager. MacOS:
+Install the dependencies with your package manager.
 
+MacOS:
 ```bash
 # brew install ripgrep fzf sqlite3 bat
+# gem install sqlite3
+```
+
+Linux:
+
+`build-essential`,`libsqlite3-dev` and `ruby-dev` are needed to install the sqlite3 gem. For example—on Debian/Ubuntu, run:
+```bash
+# apt install ripgrep fzf sqlite3 bat build-essential libsqlite3-dev ruby ruby-dev
 # gem install sqlite3
 ```
 
