@@ -2,6 +2,6 @@
 if [[ -z $1 ]]; then
   zks
 else
-  local args="$@"
+  args="$@"
   nvim -c ":set autochdir" "$ZK_PATH/$(date +"%Y%m%d%H%M") $args.md"
 fi
