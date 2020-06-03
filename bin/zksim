@@ -17,15 +17,6 @@ except ImportError as e:
 This script takes a zettelkasten note filename and sorts the available notes by their similarity
 using Term Frequency-Inverse Document Frequency (TF-IDF). The idea is to use this to help one make
 connections in their zettelkasten they may have not thought of initially. 
-
-I'm not sure how well this works in practice yet since my zettelkasten is just starting to fill up.
-It does seem to find notes I would say are generally related. I have limited the search to print the
-top 20 matches.
-
-I currently utilize sirupsen's search tool to use this (https://github.com/sirupsen/zk/blob/master/bin/zks). 
-I have a second search function for when I want to try TF-IDF that puts 'python --filename "zk filename.md" |' in
-front of the fzf. This will give you a view to scroll through related files with the same opening and linking commands
-as zk-search. Planning to add a --bind to the zks search tool.
 """
 
 
@@ -41,7 +32,10 @@ def vectorize_text(series):
 
 
 def index_from_title(series, title):
-    return series[series == title].index
+    index = series[series == title].index
+    if len(index) == 0:
+        raise ValueError("Invalid note title! This note title does not exist in your zk.")
+    return index
 
 
 def similarity_index(search_index, vectors):
