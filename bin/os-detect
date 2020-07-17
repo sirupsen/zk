@@ -1,0 +1,13 @@
+#!/usr/bin/env sh
+
+# detect os platform
+OS_TYPE="$(uname -s)"
+case "${OS_TYPE}" in
+  Linux*) sort_command=sort grep_command=grep;;
+  Darwin*) sort_command=gsort grep_command=ggrep;;
+  CYGWIN*) sort_command=sort grep_command=grep;;
+  OpenBSD*) sort_command=sort grep_command=grep;;
+  FreeBSD*) sort_command=sort grep_command=grep;;
+  *) sort_command="UNKNOWN" grep_command="UNKNOWN";;
+esac
+

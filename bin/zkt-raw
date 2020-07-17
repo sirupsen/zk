@@ -1,6 +1,14 @@
 #!/bin/bash
 # useful for editors, used in zkt
-rg -o "#[\w\-_]{3,}" -t md -N --no-filename "$ZK_PATH" |
-  rg -v "^#(notes-|import-)" | \
-  awk ' { tot[$0]++ } END { for (i in tot) print tot[i], "\t", i } ' | \
-  gsort -r --numeric-sort
+
+# load os detect script
+. os-detect
+
+case "${sort_command}" in
+  UNKNOWN*) echo "support only unix system";;
+  *)
+    rg -o "#[\w\-_]{3,}" -t md -N --no-filename "$ZK_PATH" |
+      rg -v "^#(notes-|import-)" | \
+      awk ' { tot[$0]++ } END { for (i in tot) print tot[i], "\t", i } ' | \
+      ${sort_command} -r --numeric-sort;;
+esac
