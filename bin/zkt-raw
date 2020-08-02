@@ -1,6 +1,6 @@
 #!/bin/bash
 # useful for editors, used in zkt
-rg -o "#[\w\-_]{3,}" -t md -N --no-filename "$ZK_PATH" |
+rg -o "(^|\s)#[\w\-_]{3,}" -t md -N --no-filename "$ZK_PATH" --glob '!scripts' |
   rg -v "^#(notes-|import-)" | \
   awk ' { tot[$0]++ } END { for (i in tot) print tot[i], "\t", i } ' | \
   gsort -r --numeric-sort
