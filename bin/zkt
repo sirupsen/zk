@@ -11,5 +11,10 @@ zkt-raw | fzf --height 100% --no-info --no-multi \
           tmux send-keys -t \{left\} -l \{} && \
           tmux send-keys -t \{left\} Enter \
         $' \
+        --bind \"ctrl-o:execute-silent[ \
+          tmux send-keys -t \{left\} Escape :read Space ! Space echo Space && \
+          tmux send-keys -t \{left\} -l '\\' \[ '\\' \[ \{} ]] && \
+          tmux send-keys -t \{left\} Enter \
+        ]\" \
         --preview 'bat --color always --language md --style plain \{}' \
   ]"
