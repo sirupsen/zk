@@ -10,13 +10,14 @@ id = file[/\A\d+/]
 images = body.scan(/!\[.*\]\((.+)\)/)
 media_identifier = Dir[ENV['ZK_PATH'] + "/media/#{id}-*"].map { |name|
   name.match(/#{id}-(\d+)/)[1].to_i
-}.max
+}.max || 0
 
 images.each do |(img)|
   unless img.start_with?("media/") || img.start_with?(media_path)
     media_identifier += 1
     img_path = Pathname.new(img)
-    new_path = "media/#{id}-#{media_identifier}#{img_path.extname}"
+    # regex below to not deal with ?omg=hi&lol=what from urls
+    new_path = "media/#{id}-#{media_identifier}#{img_path.extname[/\A\.\w+/i]}"
     full_new_path = "#{ENV["ZK_PATH"]}/#{new_path}"
 
     if img.start_with?("http")
