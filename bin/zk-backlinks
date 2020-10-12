@@ -1,0 +1,9 @@
+#!/usr/bin/env ruby
+
+require_relative "../lib/note"
+
+i = 0
+Note.all.each do |note|
+  i += 1
+  note.append_backlinks
+end

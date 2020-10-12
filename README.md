@@ -52,6 +52,9 @@ directly from here.
 
 `zk-assets-localize`. Given a file, downloads/copies the markdown images to `media/`.
 
+`zk-backlinks`. Adds back-links to each note. I.e., if A links to B, but B
+doesn't link to A, then it'll append `Backlink: [[A]]` to B.
+
 ## Installation
 
 Clone `zk` and add `bin/` to your `$PATH`:
