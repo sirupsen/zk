@@ -4,7 +4,7 @@ zkt-raw | fzf --height 100% --no-info --no-multi \
           tmux send-keys -t \{left\} -l '\"\\'{2}'\"' && \
           tmux send-keys -t \{left\} Enter]" \
   --bind "ctrl-y:execute-silent(echo {2} | pbcopy),enter:execute[ \
-    ggrep -F --color=always -i {2} *.md -l | \
+    rg -F --color=always -i {2} *.md -l | \
       fzf --ansi --height 100% --preview-window=top:65% \
         --bind 'enter:execute-silent$ \
           tmux send-keys -t \{left\} Escape :e Space && \
