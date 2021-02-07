@@ -119,5 +119,10 @@ export FZF_DEFAULT_OPTS="--height=40% --multi --tiebreak=begin \
   ]\""
 ```
 
+## Syncing
+
+I recommend storing the notes in iCloud/Google Drive/Dropbox or whatever you use
+to normally sync files. Nice and simple. Some people store them in Git.
+
 [1]: https://github.com/sirupsen/zk/pull/1
 [2]: https://obsidian.md/
