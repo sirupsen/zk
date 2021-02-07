@@ -9,9 +9,14 @@ other plain-text Zettelkasten users.
 **Note:** This is an on-going extraction from my local environment, but has the
 utilities I use by far the most often. I can almost guarantee you you're going
 to run into a stacktrace somewhere because of some utility that isn't installed,
-etc. Please open issues if it's not working, or you have questions, concerns,
-comments. I'd also love contributions of scripts to `bin/`, such as showing
-related notes, polish to search, Vim configs, etc.
+etc. Please open PRs/issues if it's not working, or you have questions,
+concerns, comments. I'd also love contributions of scripts to `bin/`, such as
+showing related notes, polish to search, Vim configs, etc.
+
+If you are looking for something slightly more complete that retains the
+Markdown-nature, you should take a look at [Obsidian][2]. After switching
+note-taking system every year for years, I am no longer interested in custom
+software and will stick to time-tested utilities.
 
 ![](https://pbs.twimg.com/media/EQGYhAJUYAEPC4j?format=jpg&name=4096x4096)
 
@@ -81,15 +86,17 @@ Linux:
 # gem install sqlite3
 ```
 
-For Vim, you can use
+For **Vim**, you can use
 [this](https://github.com/sirupsen/dotfiles/blob/master/home/.vimrc#L480-L517)
 in the config to add a `:Note` to add new notes with the prefix, as well as
 auto-completion for tags and links. Make sure to use `bouk/vim-markdown` to get
 proper highlighting for links.
 
 If you're using `fzf` with `vim`, it's recommended to add this to your `bash`
-configuration. It adds super useful key-bindings to open files from `zkt` and
-`zks`:
+configuration. It adds super useful key-bindings to open files in splits
+(`Ctrl-X`/`Ctrl-V`) from `zkt` and `zks` directly. It also adds `Ctrl-O` to
+insert the file-name of whatever you're hovering into Vim, which is handy for
+links!:
 
 ```bash
 export FZF_DEFAULT_OPTS="--height=40% --multi --tiebreak=begin \
@@ -113,3 +120,4 @@ export FZF_DEFAULT_OPTS="--height=40% --multi --tiebreak=begin \
 ```
 
 [1]: https://github.com/sirupsen/zk/pull/1
+[2]: https://obsidian.md/
