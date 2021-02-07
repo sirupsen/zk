@@ -1,5 +1,5 @@
 #!/bin/bash
-cd $ZK_PATH
+cd "$ZK_PATH"
 
 # Take a daily backup
 file="backup/$(date "+%Y-%m-%d")-index.db"
@@ -7,7 +7,7 @@ if [[ ! -d "backup/" ]]; then
   mkdir backup
 fi
 if [[ ! -f  $file ]]; then
-  cp index.db $file
+  cp index.db "$file"
 fi
 
 fzf --ansi --height 100% --preview 'zk-fts-search -f {} {q} | bat --language md --style=plain --color always' \
