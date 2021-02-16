@@ -36,6 +36,9 @@ Your `zk` Zettelkasten is designed to be edited with your favourite editor.
 Currently `zk` only supports Vim natively. `zk` augments your editor with
 various scripts to help extract further value.
 
+`zk`. Open `vim` in the left pane, and `zks` in the right pane. Your
+launch-point!
+
 `zks`. `fzf`-enabled full-text search (top-right pane in screenshot above) over
 all your notes, using `sqlite`. The index updates automatically based on file
 modification. See the `FZF_DEFAULT_OPTS` below for various key-bindings you can

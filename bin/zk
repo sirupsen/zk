@@ -1,0 +1,3 @@
+#!/bin/bash
+
+tmux new-window -c "${ZK_PATH}" "bash -l -c -i vim" \; split-window -h "bash -i -l "zks""
