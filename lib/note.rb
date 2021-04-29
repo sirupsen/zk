@@ -62,7 +62,7 @@ class Note
   def append_backlinks(confirm: true)
     backlinks_text = (backlinks - links).map { |note| note.to_backlink }.join("\n")
     return if backlinks_text.empty?
-    confirm(body, body + backlinks_text) if confirm && ENV["SKIP_CONFIRM"].empty?
+    confirm(body, body + backlinks_text) if confirm
     append backlinks_text
   end
 

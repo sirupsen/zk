@@ -2,8 +2,10 @@
 
 require_relative "../lib/note"
 
+confirm = !(ARGV.include?('--no-confirm') || ENV['SKIP_CONFIRM'] == 'true')
+
 i = 0
 Note.all.each do |note|
   i += 1
-  note.append_backlinks
+  note.append_backlinks(confirm: confirm)
 end
