@@ -63,6 +63,9 @@ directly from here.
 `zk-backlinks`. Adds back-links to each note. I.e., if A links to B, but B
 doesn't link to A, then it'll append `Backlink: [[A]]` to B.
 
+`zkrt`/`zk-related-tags`. Finds tags related to the ones in the passed file. You can
+pass `-t` to see a tree of tags.
+
 ## Installation
 
 Clone `zk` and add `bin/` to your `$PATH`:

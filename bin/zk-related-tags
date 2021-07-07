@@ -1,0 +1,114 @@
+#!/usr/bin/env ruby
+
+# Crate a hash with all tags, their counts, and tags they relate to
+all_tags = {}
+all_md_files = Dir["*.md"]
+all_md_files.each do |file|
+  content = File.read(file)
+  file_tags = content.scan(/#[\w-]+/)
+  file_tags.each do |file_tag|
+    all_tags[file_tag] ||= []
+    all_tags[file_tag] += file_tags
+  end
+end
+all_tags = Hash[all_tags.map { |(tag, related)|
+  related = Hash[related.group_by { |e| e }.map { |(k, tags)|
+      [k, tags.size]
+    }.sort_by { |(_k, count)| -count }]
+
+  related.delete(tag)
+  related.delete("#notes-permanent")
+  related.delete("#import-dynalist")
+  related.delete("#zettelkasten")
+  related.delete("#zettelkasten-import")
+  related.reject! { |e| e.size <= 3 }
+
+  [tag, related]
+}]
+
+tree = ARGV.delete("-t")
+# Get the list of files and tags, then merge together all the counts
+tags_and_files = ARGV.dup
+raise "pass one or more tag or file" if tags_and_files.empty?
+
+if tree
+  def tree(file, depth = 0, visited = {})
+    visited[file] = file
+    return unless File.exists?(file)
+    content = File.read(file)
+    tags = content.scan(/#[\w-]+/)
+    links = content.scan(/\[\[(.+?)\]\]+/)
+
+    padding = "  " * depth
+    puts padding + "\x1b[31m" + file
+
+    tags.each do |tag|
+      puts padding + "  \x1b[34m" + tag
+    end
+    puts
+
+    links.each do |(link)|
+      tree(link, depth + 1, visited) unless visited[link]
+    end
+  end
+
+  tree(tags_and_files[0])
+else
+  tags = tags_and_files.flat_map do |tag_or_file|
+    if tag_or_file.end_with?(".md")
+      content = File.read(tag_or_file)
+      content.scan(/#[\w-]+/)
+    elsif tag_or_file =~ /\A(\d{12})/
+      id = $1
+      file = all_md_files.find { |file| file[0..11] == id }
+      content = File.read(file)
+      content.scan(/#[\w-]+/)
+    else
+      tag_or_file.start_with?("#") ? tag_or_file : "##{tag_or_file}"
+    end
+  end
+
+  composite = {}
+  related_files = tags_and_files.flat_map do |tag_or_file|
+    if tag_or_file.end_with?(".md")
+      file = tag_or_file
+      content = File.read(tag_or_file)
+      linked_files = content.scan(/\[\[(.+?)\]\]+/)
+
+      composite[file] = 1
+
+      # Only depth = 1 for now, allow deeper!
+      linked_files.each do |(linked_file)|
+        linked_file_content = File.read(linked_file)
+        linked_file_tags = linked_file_content.scan(/#[\w-]+/)
+        linked_file_links = linked_file_content.scan(/\[\[(.+?)\]\]+/) + [linked_file]
+
+        linked_file_links.each do |(link)|
+          # tag += linked_file_tags
+          if composite[link]
+            composite[link] += 1
+          else
+            composite[link] = 1
+          end
+        end
+      end
+    end
+  end
+
+  tags.each do |tag|
+    if all_tags[tag]
+      all_tags[tag].each do |(k, v)|
+        if composite[k]
+          composite[k] += v
+        else
+          composite[k] = v
+        end
+      end
+    end
+  end
+
+  composite = composite.sort_by { |(_k, v)| -v }
+  composite.each do |(tag, n)|
+    puts "#{n}\t#{tag}"
+  end
+end
