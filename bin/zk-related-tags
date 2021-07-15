@@ -109,6 +109,10 @@ else
 
   composite = composite.sort_by { |(_k, v)| -v }
   composite.each do |(tag, n)|
-    puts "#{n}\t#{tag}"
+    if tags.include?(tag)
+      puts "\x1b[90m#{n}\t#{tag}\x1b[0m"
+    else
+      puts "#{n}\t#{tag}"
+    end
   end
 end
