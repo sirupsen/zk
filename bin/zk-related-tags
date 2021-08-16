@@ -79,6 +79,7 @@ else
 
       # Only depth = 1 for now, allow deeper!
       linked_files.each do |(linked_file)|
+        linked_file += ".md" unless linked_file.end_with?(".md")
         linked_file_content = File.read(linked_file)
         linked_file_tags = linked_file_content.scan(/#[\w-]+/)
         linked_file_links = linked_file_content.scan(/\[\[(.+?)\]\]+/) + [linked_file]
