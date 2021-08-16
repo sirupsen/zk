@@ -91,5 +91,9 @@ end
 results.each do |(_score, content, _tags)|
   # puts score
   # puts "\"#{content}\"\t\x1b[33m\"#{tags}\"\x1b[0m"
-  puts content
+  if content.start_with?("highlights/")
+    puts "\x1b[0;90m#{content}\x1b[0m"
+  else
+    puts content
+  end
 end
