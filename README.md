@@ -92,11 +92,12 @@ Linux:
 # gem install sqlite3
 ```
 
-For **Vim**, you can use
-[this](https://github.com/sirupsen/dotfiles/blob/master/home/.vimrc#L480-L517)
-in the config to add a `:Note` to add new notes with the prefix, as well as
-auto-completion for tags and links. Make sure to use `bouk/vim-markdown` to get
-proper highlighting for links.
+For **Vim**, browse through my Vim config
+[this](https://github.com/sirupsen/dotfiles/blob/master/home/.vimrc) to add a
+`:Note`, shortcut for tags, auto-completing other notes after typing `[[`, etc.
+Another function to look at is `:GPT`, which will take your range and send it to
+GPT3 for completion. Very cool for a perspective! One day this'll be a plugin
+that's easier to install.
 
 If you're using `fzf` with `vim`, it's recommended to add this to your `bash`
 configuration. It adds super useful key-bindings to open files in splits
