@@ -15,7 +15,7 @@ fzf --ansi --height 100% --preview 'zk-fts-search -f {} {q} | bat --language md 
           tmux send-keys -t \{left\} -l '\"'\[\[{}]]'\"' && \
           tmux send-keys -t \{left\} Enter@" \
   --bind "enter:execute-silent[ \
-    tmux send-keys -t \{left\} Escape :e Space && \
+    tmux send-keys -t \{left\} :e Space && \
     tmux send-keys -t \{left\} -l {} && \
     tmux send-keys -t \{left\} Enter \
   ]" \
