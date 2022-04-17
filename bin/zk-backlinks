@@ -1,8 +1,8 @@
 #!/usr/bin/env ruby
 
-require_relative "../lib/note"
+require_relative '../lib/note'
 
-confirm = !(ARGV.include?('--no-confirm') || ENV['SKIP_CONFIRM'] == 'true')
+confirm = !(ARGV.include?('--no-confirm') || ENV['SKIP_CONFIRM'] == 'true' || ARGV.include?('-f') || ARGV.include?('--force'))
 
 i = 0
 Note.all.each do |note|

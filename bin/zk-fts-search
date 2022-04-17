@@ -1,15 +1,24 @@
 #!/usr/bin/env ruby
 require 'set'
 require 'yaml'
+require 'English'
 
 # avoid rubygems
 # libx = File.expand_path("../sqlite3-ruby/lib", __FILE__)
 # $LOAD_PATH.unshift(libx) unless $LOAD_PATH.include?(libx)
-require "sqlite3"
+require 'sqlite3'
+
+if ARGV.delete('--backup')
+  backup_file = "backup/#{Time.now.strftime('%Y-%m-%d')}-index.db"
+  unless File.exist?(backup_file)
+    system("cp index.db #{backup_file}")
+    raise "Didn't back up properly" unless $CHILD_STATUS.success?
+  end
+end
 
 # require 'byebug'
 # Will be rebuilt at any time. Nice and incremental.
-db = SQLite3::Database.new "index.db"
+db = SQLite3::Database.new 'index.db'
 
 # Keep prefix indexes for "mos*" searches.
 #
@@ -31,10 +40,10 @@ db.execute <<-SQL
 SQL
 
 existing = {}
-raw_existing = db.execute("SELECT title, mtime FROM zettelkasten")
+raw_existing = db.execute('SELECT title, mtime FROM zettelkasten')
 raw_existing.each { |(title, mtime)| existing[title] = mtime.to_i }
 
-directories = Dir["*.md"] + Dir["highlights/*.md"]
+directories = Dir['*.md'] + Dir['highlights/*.md']
 directories.each do |path|
   mtime = File.stat(path).mtime.to_i
 
@@ -42,13 +51,13 @@ directories.each do |path|
   # will get updated (or if it doesn't exist, of course).
   if !existing[path]
     contents = File.read(path)
-    tags = contents.scan(/#[\w-]+/).join(" ")
+    tags = contents.scan(/#[\w-]+/).join(' ')
     db.execute(<<-SQL, [path, contents, tags, mtime])
       INSERT INTO zettelkasten (title, body, tags, mtime) VALUES (?, ?, ?, ?);
     SQL
   elsif mtime > existing[path] # to_i because the stat may have more precision
     contents = File.read(path)
-    tags = contents.scan(/#[\w-]+/).join(" ")
+    tags = contents.scan(/#[\w-]+/).join(' ')
     db.execute(<<-SQL, [contents, tags, mtime.to_s, path])
       UPDATE zettelkasten SET body = ?, tags = ?, mtime = ? WHERE title = ?
     SQL
@@ -57,13 +66,12 @@ directories.each do |path|
   existing[path] = 'VISITED'
 end
 
-
 # Delete any entries in the full text index that don't have files!
 existing.each do |(path, present)|
-  puts db.execute("DELETE FROM zettelkasten WHERE title = ?;", [path]) unless present == 'VISITED'
+  puts db.execute('DELETE FROM zettelkasten WHERE title = ?;', [path]) unless present == 'VISITED'
 end
 
-file_cat = ARGV.delete("-f")
+file_cat = ARGV.delete('-f')
 
 # For preview
 if file_cat
@@ -80,18 +88,18 @@ if file_cat
     SQL
   end
 elsif ARGV[0]
-  results = db.execute(<<-SQL, ARGV.join(" ").gsub(/-_/, ' '))
+  results = db.execute(<<-SQL, ARGV.join(' ').gsub(/-_/, ' '))
     SELECT rank, highlight(zettelkasten, 0, '\x1b[0;41m', '\x1b[0m'), tags
       FROM zettelkasten WHERE zettelkasten MATCH ? ORDER BY rank;
   SQL
 else
-  results = db.execute("SELECT title FROM zettelkasten;")
+  results = db.execute('SELECT title FROM zettelkasten;')
 end
 
 results.each do |(_score, content, _tags)|
   # puts score
   # puts "\"#{content}\"\t\x1b[33m\"#{tags}\"\x1b[0m"
-  if content.start_with?("highlights/")
+  if content.start_with?('highlights/')
     puts "\x1b[0;90m#{content}\x1b[0m"
   else
     puts content
