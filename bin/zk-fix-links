@@ -1,0 +1,45 @@
+#!/usr/bin/env ruby
+files = Dir[ENV['ZK_PATH'] + '/*.md']
+basenames = files.map { |e| File.basename(e) }
+
+files.zip(basenames).each do |path, basename|
+  body = File.read(path)
+  new_body = body
+
+  body.scan(/\[\[(.+?)\]\]/).each do |match|
+    match = match.first
+    case match
+    # Convert raw numbers to full reference
+    # [20200101 => 20200101 Hello World.md]
+    when /\A\d+\z/
+      reference = basenames.find { |f| f =~ /\A#{Regexp.escape(match)}/ }
+      reference ||= basenames.find { |f| f =~ /\A20#{Regexp.escape(match)}/ }
+      raise "Match for #{match} not found for #{basename}" unless reference
+
+      new_body = new_body.sub("[[#{match}]]", "[[#{reference}]]")
+      puts "Fixing #{match}"
+    # Convert files without .md extension to have it
+    # This allows `gf` in Vim to work out.
+    when /^[\w\s]+(?!.md)$/
+      new_body = new_body.sub("[[#{match}]]", "[[#{match}.md]]")
+    else
+      # We check whether the link is still valid and try to fix it..
+      # Usually due to a rename.
+      unless basenames.find { |f| f == match }
+        puts "#{basename}: Unable to find exact match for #{match}, looking by id.."
+        id = match[/\A\d+/]
+        next unless id
+
+        right_note = basenames.find { |f| f.start_with?(id) }
+        next unless right_note
+
+        new_body = new_body.sub("[[#{match}]]", "[[#{right_note}]]")
+      end
+    end
+  end
+
+  if new_body != body
+    puts "Fixing up #{basename}.."
+    File.open(path, 'w') { |f| f.write(new_body) }
+  end
+end

@@ -1,0 +1,36 @@
+#!/usr/bin/env ruby
+require 'time'
+
+names_to_paths = {}
+id_to_paths = {}
+path_to_contents = {}
+path_to_id = {}
+
+Dir["*.md"].each do |path|
+  if match = path.match(/(?<id>\d+) (?<name>.+?)\.md/)
+    names_to_paths[match['name']] ||= []
+    names_to_paths[match['name']] << path
+    id_to_paths[match['id']] ||= []
+    id_to_paths[match['id']] << path
+
+    path_to_contents[path] = File.read(path)
+    path_to_id[path] = match['id']
+  end
+end
+
+names_to_paths.select { |name, paths| paths.size > 1 }.each do |name, paths|
+  paths.sort_by { |path| Time.parse(path_to_id[path]) }
+  contents = paths.map { |path| path_to_contents[path] }
+  all_equal = (contents.uniq.size == 1)
+
+  puts '========='
+  puts "all_equal: #{all_equal}"
+  puts paths
+
+  if all_equal
+    # save earliest time
+    paths[1..-1].each do |path|
+      File.delete(path)
+    end
+  end
+end
